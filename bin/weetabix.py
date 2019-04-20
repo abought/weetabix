@@ -33,8 +33,8 @@ def run_cli():
     writer = weetabix.Writer(args.source_filename, skip_lines=args.skip, delimiter=args.delimiter)
     index_fn = writer.make_index(args.key_col, index_fn=args.index_fn)
 
-    print('Indexing complete. To verify your delimiter and parsing options, here are three sample values from the index: ')
-    for row in itertools.islice(writer.get_keys(), 3):
+    print('Indexing complete. To verify your delimiter and parsing options, here are three sample values: ')
+    for row in itertools.islice(writer.get_entries(), 3):
         print('-', row)
 
     print('Index written to: ', index_fn)

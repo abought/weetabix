@@ -50,7 +50,7 @@ def test_writer_indexes_tsv(sample_data_tsv):
     # Index the file on exact contents of column 1
     writer = weetabix.Writer(sample_data_tsv, skip_lines=1, delimiter='\t')
     writer.make_index(1)
-    keys = list(writer.get_keys())
+    keys = list(writer.get_entries())
     assert keys == ['2', '1'], 'Indexed correct keys for tab delimited file'
 
     reader = weetabix.Reader(sample_data_tsv)
@@ -64,7 +64,7 @@ def test_index_has_all_column_values(sample_data):
     with open(index_fn, 'rb') as f:
         contents = json.load(f)
 
-    keys = contents['keys'].keys()
+    keys = contents['index'].keys()
     assert len(keys) == 7, 'has expected number of keys'
     assert set(keys) == {'A010', 'A011', 'A012', 'A013', 'A014', 'A02', 'W5622'}, 'has correct set of unique keys'
 
@@ -87,7 +87,7 @@ def test_gets_correct_number_of_lines_for_each_key(sample_data):
 
 def test_uses_secondary_index(sample_data, secondary_index):
     reader = weetabix.Reader(sample_data, index_fn=secondary_index)
-    keys = list(reader.get_keys())
+    keys = list(reader.get_entries())
     assert len(keys) == 2
     assert keys == ['A', 'W']
 

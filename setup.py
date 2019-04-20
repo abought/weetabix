@@ -140,7 +140,7 @@ setup(
     # Similar to `install_requires` above, these must be valid existing
     # projects.
     extras_require={  # Optional
-        'test': ['coverage', 'pytest', 'pytest-flake8', 'pytest-mypy'],
+        'test': ['coverage', 'pytest>=4.4.0', 'pytest-flake8>=1.0.0'],
     },
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow

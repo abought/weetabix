@@ -33,7 +33,7 @@ class Writer:
         self._skip_lines = skip_lines
         self._delimiter = delimiter
 
-        self._index = None
+        self._index = {}  # type: dict
 
     def make_index(self, key_col, *, key_func=None, index_fn=None) -> str:
         """
@@ -51,7 +51,7 @@ class Writer:
             raise Exception('Index and source filename must not be the same')
 
         # The resulting index will have the following format: { delimiter: '\t', keys: { cat: (start, end) } }
-        byte_index = {'delimiter': self._delimiter, 'keys': {} }
+        byte_index = {'delimiter': self._delimiter, 'index': {}}
         last_key = None
 
         key_col = key_col - 1  # 0-based index
@@ -79,7 +79,7 @@ class Writer:
                     last_key = key
 
                 if key != last_key:
-                    byte_index['keys'][last_key] = (span_start, last_line_end)
+                    byte_index['index'][last_key] = (span_start, last_line_end)
                     span_start = last_line_end
 
                 # Advance the iteration
@@ -88,7 +88,7 @@ class Writer:
 
             if last_key not in byte_index:
                 # In case file has no newline at end
-                byte_index['keys'][last_key] = (span_start, last_line_end)  # type: ignore
+                byte_index['index'][last_key] = (span_start, last_line_end)  # type: ignore
 
         with open(index_fn, 'w') as f:
             json.dump(byte_index, f, separators=(',', ':'), allow_nan=False)
@@ -96,10 +96,10 @@ class Writer:
         self._index = byte_index
         return index_fn
 
-    def get_keys(self):
-        if self._index is None:
+    def get_entries(self):
+        if not self._index:
             raise Exception('You must generate the index before inspecting its values')
-        return self._index['keys'].keys()
+        return self._index['index'].keys()
 
 
 class Reader:
@@ -118,7 +118,7 @@ class Reader:
             byte_index = json.load(f)
 
         self._delimiter = byte_index['delimiter']
-        self._keys = byte_index['keys']
+        self._index = byte_index['index']
 
     def fetch(self, value: str, *, strict: bool = False) -> ty.Iterator:
         """
@@ -128,16 +128,16 @@ class Reader:
         :return: An array of strings, one per line of the file
         """
 
-        if value not in self._keys and not strict:
+        if value not in self._index and not strict:
             # Sometimes the file may not have any information about the user's query, and that is usually ok
             return []
 
-        start, end = self._keys[value]
+        start, end = self._index[value]
 
-        with open(self._source, 'r') as f:  # type: ignore
+        with open(self._source, 'r') as f:
             # Note: Fetches all the data requested, even if it's a lot. Don't request a lot.
             f.seek(start, 0)
             return csv.reader(f.read(end - start).splitlines(), delimiter=self._delimiter)
 
-    def get_keys(self):
-        return self._keys.keys()
+    def get_entries(self):
+        return self._index.keys()

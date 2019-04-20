@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/abought/weetabix.svg?branch=master)](https://travis-ci.org/abought/weetabix)
+
 # Weetabix
 
 Simple byte-range indexing for plaintext columnar data
