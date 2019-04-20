@@ -1,0 +1,21 @@
+language: python
+cache: pip
+
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+sudo: false
+
+install:
+  - travis_retry pip install --upgrade pip
+  - travis_retry pip install '.[test]'
+
+branches:
+  only:
+    - master
+    - develop
+
+script:
+  - pytest --mypy --flake8 tests/

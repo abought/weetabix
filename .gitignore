@@ -1,0 +1,10 @@
+.mypy_cache
+.pytest_cache
+venv
+.venv
+env
+*.egg-info
+*.egg
+
+# Ignore any indices generated as byproducts of testing this code
+*.wtb
