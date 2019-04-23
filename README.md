@@ -12,7 +12,15 @@ Install from pypi:
 
 This library requires Python >= 3.4.
 
-Usage:
+Quickly generate an index of an existing CSV file from the command line (writes to filename.wtb):
+
+` $  weetabix yourdata.csv 1 --delimiter ',' --skip-lines 1`
+
+For full command details, see: 
+`weetabix --help`
+
+
+Or, use from python for more fine-grained control:
 ```python
 import weetabix
 
@@ -23,12 +31,12 @@ writer.make_index(1)
 # Create a second, more coarse grained index on the same column, but just using the "state" part
 writer.make_index(1, index_fn='secondary.wtb', key_func=lambda v: v.rsplit(',')[-1].strip())
 
-# Use the basic index
+# Read part of a file, using the first index generated
 reader = weetabix.Reader('sample.csv')
 for row in reader.fetch('Portland, Oregon'):
     print(row)
     
-# Use the coarse index
+# Read part of a file, using the second index (coarse grained)
 reader = weetabix.Reader('sample.csv', index_fn='secondary.wtb')
 for row in reader.fetch('Oregon'):
     print(row)    
@@ -69,14 +77,14 @@ Sweater
 Blog
 
 
-Bad (categories are continuous instead of discrete):
+"Bad"* (categories are continuous instead of discrete):
 > 1990  
 1991  
 1992
 
 
-There are many possible (and reasonable!) ways to index your data, but this tool only provides a single strategy. 
-Even if that strategy is not the right fit, feel free to experiment and find the index strategy (and format) that best 
+* There are many possible (and reasonable!) ways to index your data, but this tool only provides a single strategy. 
+Even if that strategy is not the right fit, feel free to experiment and find the type (and format) of index that best 
 suits your data.
 
 
@@ -98,3 +106,9 @@ To run code quality and unit tests locally:
 
 This project was inspired by [Tabix](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3042176/), a specialized tool used 
 in bioinformatics to retrieve interesting regions from tab-delimited genomic data.
+
+
+## Acknowledgments
+The bundled example file is public data courtesy of 
+[DOHMH New York City Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j),
+retrieved April 22, 2019.

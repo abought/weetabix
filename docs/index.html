@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weetabix: Demonstration</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"/>
+    <link href="https://unpkg.com/tabulator-tables@4.0.5/dist/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
+    <!--    TODO: Move to separate repo/cdn link -->
+    <script src="example_data/weetabix.js" type="application/javascript"></script>
+</head>
+<body>
+
+
+<div class="container">
+    <h1>Weetabix Demonstration</h1>
+    Browse the <a href="https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j">DOHMH New York City Restaurant Inspection Results</a>
+    for various <a href="https://data.cityofnewyork.us/Health/McDonald-s/kyws-ad2t">McDonald's locations</a>.
+
+    <div class="row">
+        Please select a location: <select id="category-picker"><option disabled selected value="">(none)</option></select>
+    </div>
+
+    <div class="row">
+        <div id="tabulator-table"></div>
+    </div>
+</div>
+</body>
+
+<script type="application/javascript">
+    // On first page load, populate a dropdown menu with the list of available filter categories
+    const CATEGORY_PICKER = document.getElementById('category-picker');
+    var reader = new wtb.Reader('example_data/McDonald_s.csv');
+    // Make a select dropdown based on the categories in the index file
+    reader.prepare()
+        .then(() => reader.getEntries())
+        .then(keys => {
+            const options = document.getElementById('category-picker').options;
+            keys.forEach(key => options.add(new Option(key)));
+        });
+
+
+    function csvToJson(row) {
+        // Convert the demo CSV to json based on known table headings
+        return {
+            inspection_date: row[8],
+            code: row[10],
+            desc: row[11],
+            score: row[13],
+            grade: row[14]
+
+        }
+    }
+
+    // Define a data table
+    var table = new Tabulator('#tabulator-table', {
+        placeholder: 'Select a category to show data',
+        layout: 'fitDataFill',
+        columns: [
+            {title: 'Inspection date', field: 'inspection_date'},
+            {title: 'Grade', field: 'grade'},
+            {title: 'Code', field: 'code'},
+            {title: 'Description', field: 'desc', headerFilter: true}
+        ]
+    });
+
+    CATEGORY_PICKER.addEventListener('change', (event) => {
+        reader.fetch(event.target.value)
+            .then(rows => rows.map(csvToJson))
+            .then(content => table.setData(content));
+    });
+
+</script>
+</html>
