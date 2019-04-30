@@ -30,7 +30,7 @@
 <script type="application/javascript">
     // On first page load, populate a dropdown menu with the list of available filter categories
     const CATEGORY_PICKER = document.getElementById('category-picker');
-    var reader = new wtb.Reader('example_data/McDonald_s.csv');
+    var reader = new wtb.CategoryReader('example_data/McDonald_s.csv');
     // Make a select dropdown based on the categories in the index file
     reader.prepare()
         .then(() => reader.getEntries())
@@ -58,9 +58,9 @@
         layout: 'fitDataFill',
         columns: [
             {title: 'Inspection date', field: 'inspection_date'},
-            {title: 'Grade', field: 'grade'},
-            {title: 'Code', field: 'code'},
-            {title: 'Description', field: 'desc', headerFilter: true}
+            {title: 'Grade', field: 'grade', formatter:"plaintext"},
+            {title: 'Code', field: 'code', formatter:"plaintext"},
+            {title: 'Description', field: 'desc', headerFilter: true, formatter:"plaintext"}
         ]
     });
 
