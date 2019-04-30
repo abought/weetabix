@@ -14,11 +14,18 @@
 
 <div class="container">
     <h1>Weetabix Demonstration</h1>
-    Browse the <a href="https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j">DOHMH New York City Restaurant Inspection Results</a>
-    for various <a href="https://data.cityofnewyork.us/Health/McDonald-s/kyws-ad2t">McDonald's locations</a>.
+    <p>
+        Browse the <a href="https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j">DOHMH New York City Restaurant Inspection Results</a>
+        for various <a href="https://data.cityofnewyork.us/Health/McDonald-s/kyws-ad2t">McDonald's locations</a>.
+    </p>
+    <p>
+        This fetches small chunks from a much larger file, using a simple byte-range index. See the
+        <a href="https://github.com/abought/weetabix">GitHub repo</a> for details.
+    </p>
 
     <div class="row">
-        Please select a location: <select id="category-picker"><option disabled selected value="">(none)</option></select>
+        Please select a single restaurant ID: <select id="restaurant-picker"><option disabled selected value="">(none)</option></select> <br>
+        OR Search all restaurants in a certain borough: <select id="borough-picker"><option disabled selected value="">(none)</option></select>
     </div>
 
     <div class="row">
@@ -29,20 +36,29 @@
 
 <script type="application/javascript">
     // On first page load, populate a dropdown menu with the list of available filter categories
-    const CATEGORY_PICKER = document.getElementById('category-picker');
-    var reader = new wtb.CategoryReader('example_data/McDonald_s.csv');
+    const RESTAURANT_PICKER = document.getElementById('restaurant-picker');
+    const BOROUGH_PICKER = document.getElementById('borough-picker');
+    var city_reader = new wtb.CategoryReader('example_data/McDonald_s.csv', {index: 'example_data/McDonalds_fine.wtb'});
+    var borough_reader = new wtb.CategoryReader('example_data/McDonald_s.csv', {index: 'example_data/McDonalds_coarse.wtb'});
     // Make a select dropdown based on the categories in the index file
-    reader.prepare()
-        .then(() => reader.getEntries())
+    city_reader.prepare()
+        .then(() => city_reader.getEntries())
         .then(keys => {
-            const options = document.getElementById('category-picker').options;
+            const options = RESTAURANT_PICKER.options;
             keys.forEach(key => options.add(new Option(key)));
         });
 
+    borough_reader.prepare()
+        .then(() => borough_reader.getEntries())
+        .then(keys => {
+            const options = BOROUGH_PICKER.options;
+            keys.forEach(key => options.add(new Option(key)));
+        });
 
     function csvToJson(row) {
         // Convert the demo CSV to json based on known table headings
         return {
+            camis: row[0],
             inspection_date: row[8],
             code: row[10],
             desc: row[11],
@@ -57,6 +73,7 @@
         placeholder: 'Select a category to show data',
         layout: 'fitDataFill',
         columns: [
+            {title: 'ID', field: 'camis'},
             {title: 'Inspection date', field: 'inspection_date'},
             {title: 'Grade', field: 'grade', formatter:"plaintext"},
             {title: 'Code', field: 'code', formatter:"plaintext"},
@@ -64,8 +81,14 @@
         ]
     });
 
-    CATEGORY_PICKER.addEventListener('change', (event) => {
-        reader.fetch(event.target.value)
+    RESTAURANT_PICKER.addEventListener('change', (event) => {
+        city_reader.fetch(event.target.value)
+            .then(rows => rows.map(csvToJson))
+            .then(content => table.setData(content));
+    });
+
+    BOROUGH_PICKER.addEventListener('change', (event) => {
+        borough_reader.fetch(event.target.value)
             .then(rows => rows.map(csvToJson))
             .then(content => table.setData(content));
     });
