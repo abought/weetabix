@@ -2,7 +2,7 @@
 
 # Weetabix
 
-Simple byte-range indexing for plaintext columnar data
+Incremental random access to plaintext columnar data, based on simple byte-range indexing. 
 
 ## Installation and usage
 
@@ -107,6 +107,24 @@ To run code quality and unit tests locally:
 This project was inspired by [Tabix](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3042176/), a specialized tool used 
 in bioinformatics to retrieve interesting regions from tab-delimited genomic data.
 
+## Notes on deployment
+Your web host must support Range requests. Many, but not all, do so. See: 
+[Checking if a server supports partial requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests#Checking_if_a_server_supports_partial_requests).
+
+Even if your server declares basic support, details vary widely across hosts, and depends on many factors- in 
+particular, some CDNs have [issues](https://github.com/whatwg/fetch/issues/747) due to aggressive caching/compression 
+that results in an unreadable response. If you encounter problems, consider simple file hosts such as 
+Amazon S3 or Google Cloud Storage.  
+
+### Common problems
+Though GitHub pages as host will work in Google Chrome, you may see a "decoding error" when serving your 
+partial CSV file on GitHub pages to Firefox. The difference is due to a specification change that has not yet been 
+implemented (see [open ticket](https://bugzilla.mozilla.org/show_bug.cgi?id=1467010)).
+
+Many local development servers (eg Python SimpleHTTPServer) are not very robust, and do not support range 
+requests at all. See [npm http-server](https://www.npmjs.com/package/http-server) for an example of one server that 
+supports this feature.
+ 
 
 ## Acknowledgments
 The bundled example file is public data courtesy of 

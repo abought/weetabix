@@ -10,6 +10,7 @@ import weetabix
 
 FIXTURE1 = os.path.join(os.path.dirname(__file__), 'fixtures/sample_icd10.csv')
 FIXTURE2 = os.path.join(os.path.dirname(__file__), 'fixtures/sample.tab')
+FIXTURE3 = os.path.join(os.path.dirname(__file__), 'fixtures/invalid_sample.tab')
 
 
 @pytest.fixture(scope='module')
@@ -41,6 +42,14 @@ def sample_data_tsv(tmpdir_factory):
     return fn
 
 
+@pytest.fixture(scope='module')
+def sample_data_invalid(tmpdir_factory):
+    """An invalid file (categories are not sorted)"""
+    fn = tmpdir_factory.getbasetemp() / 'invalid_sample.tab'
+    shutil.copy(FIXTURE3, fn)
+    return fn
+
+
 def test_generates_index_in_default_location(sample_data):
     expected_fn = weetabix._default_index_name(sample_data)
     assert os.path.isfile(expected_fn), "Index file was created"
@@ -56,6 +65,12 @@ def test_writer_indexes_tsv(sample_data_tsv):
     reader = weetabix.Reader(sample_data_tsv)
     first_row = next(reader.fetch('2'))
     assert len(first_row) == 5, 'Reader was able to parse tab delimited file'
+
+
+def test_writer_warns_if_categories_not_sorted(sample_data_invalid):
+    writer = weetabix.Writer(sample_data_invalid, skip_lines=1, delimiter='\t')
+    with pytest.raises(Exception):
+        writer.make_index(1)
 
 
 def test_index_has_all_column_values(sample_data):

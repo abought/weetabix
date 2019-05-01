@@ -79,12 +79,17 @@ class Writer:
                     last_key = key
 
                 if key != last_key:
+                    if last_key in byte_index['index']:
+                        # We are pushing something into the index.... but a previous entry exists that would be
+                        #   overwritten. Warn the user.
+                        raise Exception('Non-contiguous category data found. Please sort the file before indexing.')
+
                     byte_index['index'][last_key] = (span_start, last_line_end)
-                    span_start = last_line_end
+                    span_start = last_line_end + 1
 
                 # Advance the iteration
                 last_key = key
-                last_line_end = position
+                last_line_end = position - 1  # Position is start of this line, so we want one character prior
 
             if last_key not in byte_index:
                 # In case file has no newline at end
@@ -137,7 +142,7 @@ class Reader:
         with open(self._source, 'r') as f:
             # Note: Fetches all the data requested, even if it's a lot. Don't request a lot.
             f.seek(start, 0)
-            return csv.reader(f.read(end - start).splitlines(), delimiter=self._delimiter)
+            return csv.reader(f.read(end - start + 1).splitlines(), delimiter=self._delimiter)
 
     def get_entries(self):
         return self._index.keys()
