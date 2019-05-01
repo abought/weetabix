@@ -114,7 +114,8 @@ Your web host must support Range requests. Many, but not all, do so. See:
 Even if your server declares basic support, details vary widely across hosts, and depends on many factors- in 
 particular, some CDNs have [issues](https://github.com/whatwg/fetch/issues/747) due to aggressive caching/compression 
 that results in an unreadable response. If you encounter problems, consider simple file hosts such as 
-Amazon S3 or Google Cloud Storage.  
+Amazon S3 or Google Cloud Storage (see [CORS instructions](https://docs.cancergenomicscloud.org/docs/enabling-cross-origin-resource-sharing-cors#CORS) 
+if you have trouble loading the file in your browser).
 
 ### Common problems
 Though GitHub pages as host will work in Google Chrome, you may see a "decoding error" when serving your 

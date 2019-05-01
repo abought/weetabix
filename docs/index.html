@@ -38,8 +38,12 @@
     // On first page load, populate a dropdown menu with the list of available filter categories
     const RESTAURANT_PICKER = document.getElementById('restaurant-picker');
     const BOROUGH_PICKER = document.getElementById('borough-picker');
-    var city_reader = new wtb.CategoryReader('example_data/McDonald_s.csv', {index: 'example_data/McDonalds_fine.wtb'});
-    var borough_reader = new wtb.CategoryReader('example_data/McDonald_s.csv', {index: 'example_data/McDonalds_coarse.wtb'});
+    var city_reader = new wtb.CategoryReader(
+        'https://storage.googleapis.com/weetabix-public-samples/McDonald_s.csv',
+        {index: 'https://storage.googleapis.com/weetabix-public-samples/McDonalds_fine.wtb'});
+    var borough_reader = new wtb.CategoryReader(
+        'https://storage.googleapis.com/weetabix-public-samples/McDonald_s.csv',
+        {index: 'https://storage.googleapis.com/weetabix-public-samples/McDonalds_coarse.wtb'});
     // Make a select dropdown based on the categories in the index file
     city_reader.prepare()
         .then(() => city_reader.getEntries())
